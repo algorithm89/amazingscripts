@@ -1,0 +1,11 @@
+---
+
+
+- hosts: webservers
+  become: yes
+  become_user: root
+  tasks:
+   - name: Mariadb
+     service:
+       name: mariadb
+       state: started
