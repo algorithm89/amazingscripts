@@ -1,0 +1,27 @@
+
+#This is how the book should be structured:
+ ---
+
+- hosts:
+  tasks:
+  remote_user: cloud
+  become: true
+     - name: create file
+       file:
+         path: /home/cloud/nicetits.txt
+         state: present
+         owner: cloud
+         mode: 0777
+
+
+
+
+- hosts:
+
+  remote_user: cloud
+  become: true
+  tasks:
+    - name:
+      yum:
+        name:
+        state:

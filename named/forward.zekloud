@@ -1,0 +1,19 @@
+
+
+
+
+
+$TTL 86400
+@   IN  SOA     clouds.zekloud.net. root.zekloud.net. (
+        2011071001  ;Serial
+        3600        ;Refresh
+        1800        ;Retry
+        604800      ;Expire
+        86400       ;Minimum TTL
+)
+@       IN  NS          clouds.zekloud.net.
+@       IN  NS          cloudman.zekloud.net.
+@       IN  A           10.1.1.1
+@       IN  A           10.1.1.3
+clouds       IN  A   10.1.1.1
+cloudman     IN  A   10.1.1.3
