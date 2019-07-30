@@ -1,0 +1,12 @@
+---
+
+
+- hosts: webservers
+  become: yes
+  become_user: root
+  tasks:
+   - name: Install Epel-Release
+     yum:
+       name: epel-release
+       state: installed
+       update_cache: true
