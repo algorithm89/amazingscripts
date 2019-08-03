@@ -27,3 +27,12 @@ us-west-2.elb.amazonaws.com. 594 IN	NS	ns-560.awsdns-06.net.
 ;; SERVER: 192.168.1.1#53(192.168.1.1)
 ;; WHEN: Sat Aug 03 17:09:06 EDT 2019
 ;; MSG SIZE  rcvd: 293
+
+ git help -a | grep credential-
+
+
+   $ git config credential.helper cache
+           $ git push http://example.com/repo.git
+           Username: <type your username>
+           Password: <type your password>
+git config credential.helper 'cache --timeout=300'
