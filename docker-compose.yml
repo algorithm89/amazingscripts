@@ -1,0 +1,115 @@
+
+
+version: '3'
+
+services:
+  app:
+    image: traefik:alpine
+    restart: always
+    container_name: traefik1
+    ports:
+      - "8081:8081"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.toml:/traefik.toml:ro
+      - ./acme.json:/acme.json
+      - ./certs:/certs
+    networks:
+      - proxy
+    labels:
+     - traefik.frontend.rule:=Host:traffic.clouds.net
+     - traefik.enable=true
+     - traefik.port=8080
+     - traefik.docker.network=proxy 
+     - traefik.frontend.entryPoints=http,https
+
+    command:
+      - --entrypoints=Name:https Address::443 TLS
+
+
+  portainer:
+    image: portainer/portainer
+    networks:
+      - proxy
+    restart: always
+    ports:
+      - "9000:9000"
+    command: -H unix:///var/run/docker.sock
+    
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.port=9000
+      - traefik.frontend.rule=Host:portainer.clouds.net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - /opt/prometheus/conf:/etc/prometheus
+      - /opt/prometheus/data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    
+    networks:
+      - proxy
+    
+    labels:
+     - traefik.port=9090
+     - traefik.front.rule=Host:cloud.clouds.net
+     - traefik.enable=true
+     - traefik.default.protocol=http
+
+  node-exporter:
+    image: prom/node-exporter
+    container_name: nodeprom
+    ports:
+     - '9100:9100'
+    labels:
+  
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.port=9100
+      - traefik.frontend.rule=Host:node.clouds.net
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafa
+
+    ports:
+     - "3000:3000"
+    labels:
+  
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.port=3000
+      - traefik.frontend.rule=Host:grafana.clouds.net
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin007
+      - GF_PATHS_LOGS=/var/logs/grafana
+      - GF_SERVER_ROOT_URL=http://grafana.clouds.net
+
+    depends_on:
+      - prometheus  
+   
+
+
+networks:
+  proxy:
+    external: true
+  web:
+    external: false
+
+
+volumes:
+  portainer-data:
+    external: true
