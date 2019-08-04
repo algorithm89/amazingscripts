@@ -36,3 +36,10 @@ us-west-2.elb.amazonaws.com. 594 IN	NS	ns-560.awsdns-06.net.
            Username: <type your username>
            Password: <type your password>
 git config credential.helper 'cache --timeout=300'
+
+
+    proxy_set_header Host $host;
+    proxy_set_header Host $host;
+    proxy_set_header Host $host;
+    proxy_set_header Host $host;
+    proxy_set_header Host $host;
