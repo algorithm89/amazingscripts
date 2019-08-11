@@ -27,6 +27,31 @@ services:
 
     command:
       - --entrypoints=Name:https Address::443 TLS
+
+
+
+
+  nginx:
+    container_name: moby_cock_nginx
+    image: nginx:latest
+    
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/ssl:ro
+      - ./html1:/usr/share/nginx/html1:ro
+      - ./html2:/usr/share/nginx/html2:ro
+
+    ports:
+
+    networks:
+      - proxy
+    label:
+     - traefik.frontend.entryPoints=http,https
+     - traefik.backend=traffic
+     - traefik.frontend.rule=Host:ns4.clouds.net
+     - traefik.enable=true
+     - traefik.port=80
+     - traefik.docker.network=proxy 
   
   mysql:
     image: mysql:5.7
