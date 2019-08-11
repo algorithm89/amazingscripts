@@ -4,7 +4,7 @@ version: '3'
 
 services:
   traefik1:
-    image: traefik:alpine
+    image: traefik:1.6
     restart: always
     container_name: traefik1
     ports:
@@ -12,36 +12,56 @@ services:
       - "443:443"
       
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik.toml:/traefik.toml:ro
-      - ./acme.json:/acme.json
-      - ./certs:/certs
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.toml:/traefik.toml
+      - ./certs/:/certs/
     networks:
       - proxy
     labels:
-     - traefik.frontend.rule:=Host:traffic.clouds.net
-     - traefik.enable=true
-     - traefik.port=8080
-     - traefik.docker.network=proxy 
      - traefik.frontend.entryPoints=http,https
+     - traefik.backend=traffic
+     - traefik.frontend.rule=Host:traffic.clouds.net
+     - traefik.enable=true
+     - traefik.port=443
+     - traefik.docker.network=proxy 
 
     command:
       - --entrypoints=Name:https Address::443 TLS
+  
+  mysql:
+    image: mysql:5.7
+    container_name: sqldb1
+    networks:
+      - proxy
+    volumes:    
+      - /opt/mysql:/var/lib/mysql
 
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=toor89
+      - MYSQL_DATABASE=expenses
+      - MYSQL_USER=king
+      - MYSQL_PASSWORD=toor89
+    labels:
+     - traefik.frontend.rule=Host:db.clouds.net                 
+     - traefik.port=3306
+     - traefik.enable=true
+     - traefik.docker.network=proxy 
+     - traefik.frontend.entryPoints=http,https
 
   portainer:
     image: portainer/portainer
     networks:
       - proxy
     restart: always
-    ports:
-      - "9000:9000"
     command: -H unix:///var/run/docker.sock
-    
+    ports:
+     - 9000:9000
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - portainer-data:/data
+      - portainer-data2:/data
     labels:
       - traefik.enable=true
       - traefik.docker.network=proxy
@@ -57,9 +77,10 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-    ports:
-      - "9090:9090"
     
+    ports:
+     - 9090:9090 
+
     networks:
       - proxy
     
@@ -73,7 +94,7 @@ services:
     image: prom/node-exporter
     container_name: nodeprom
     ports:
-     - '9100:9100'
+      - 9100:9100
     labels:
   
       - traefik.enable=true
@@ -84,11 +105,10 @@ services:
   grafana:
     image: grafana/grafana
     container_name: grafa
-
+    ports: 
+      - 3000:3000
     volumes: 
       - /opt/grafana_data:/var/lib/grafana:rw
-    ports:
-     - "3000:3000"
     labels:
   
       - traefik.enable=true
@@ -103,28 +123,6 @@ services:
     depends_on:
       - prometheus  
   
-  jenkins: 
-
-    image: bitnami/jenkins:latest
-    container_name: jenks
-    volumes:
-     - ./jenkins_data:/bitnami
-     - ./home:/home
-    environment:
-     - JENKINS_PASSWORD=toor89
-     - JENKINS_USERNAME=admin
-     
-    
-    ports:
-      - "8080"
-      - "8443"
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=proxy
-      - traefik.port=8080
-      - traefik.frontend.rule=Host:jenkins.clouds.net
-    networks:
-      - proxy
     
 
 networks:
@@ -135,5 +133,5 @@ networks:
 
 
 volumes:
-  portainer-data:
+  portainer-data2:
     external: true
