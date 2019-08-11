@@ -30,25 +30,20 @@ services:
 
 
 
-
   nginx:
-    container_name: moby_cock_nginx
+    container_name: moby_nginx
     image: nginx:latest
     
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/ssl:ro
-      - ./html1:/usr/share/nginx/html1:ro
-      - ./html2:/usr/share/nginx/html2:ro
-
-    ports:
-
+      - /home/king/SQL-HACKER:/usr/share/nginx/html3:ro
+    
     networks:
-      - proxy
+     - proxy
     label:
      - traefik.frontend.entryPoints=http,https
-     - traefik.backend=traffic
-     - traefik.frontend.rule=Host:ns4.clouds.net
+     - traefik.frontend.rule=Host:sql.clouds.net
      - traefik.enable=true
      - traefik.port=80
      - traefik.docker.network=proxy 
